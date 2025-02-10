@@ -1,0 +1,78 @@
+From b1001eef8496c83f33aadd3351af738cb83058ad Mon Sep 17 00:00:00 2001
+From: Kiyoung Kim <kiyoungkim@google.com>
+Date: Mon, 12 Aug 2024 12:53:08 +0900
+Subject: [PATCH 6/6] Define vintf fragment as a module
+
+Define vintf fragment as a module, so it can be used from multiple
+soong-defined modules.
+
+Bug: 322089980
+Test: aosp_cf_x86_64_phone build succeeded
+Change-Id: I817efd443e49439e4134fca8bd3fd034bbbcc3cc
+Merged-In: I817efd443e49439e4134fca8bd3fd034bbbcc3cc
+---
+ hostapd/Android.bp             | 5 +++--
+ hostapd/Android.mk             | 2 +-
+ wpa_supplicant/Android.mk      | 2 +-
+ wpa_supplicant/aidl/Android.bp | 5 +++--
+ 4 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/hostapd/Android.bp b/hostapd/Android.bp
+index 3194d369..a6e93716 100644
+--- a/hostapd/Android.bp
++++ b/hostapd/Android.bp
+@@ -320,7 +320,8 @@ filegroup {
+ }
+ 
+ // This manifest can used by a vendor apex module for hostapd as well.
+-filegroup {
++vintf_fragment {
+     name: "android.hardware.wifi.hostapd.xml",
+-    srcs: ["android.hardware.wifi.hostapd.xml"],
++    src: "android.hardware.wifi.hostapd.xml",
++    soc_specific: true,
+ }
+diff --git a/hostapd/Android.mk b/hostapd/Android.mk
+index adb4c084..c562f6e2 100644
+--- a/hostapd/Android.mk
++++ b/hostapd/Android.mk
+@@ -1175,7 +1175,7 @@ LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../LICENSE
+ LOCAL_MODULE_TAGS := optional
+ LOCAL_PROPRIETARY_MODULE := true
+ LOCAL_MODULE_RELATIVE_PATH := hw
+-LOCAL_VINTF_FRAGMENTS := android.hardware.wifi.hostapd.xml
++LOCAL_REQUIRED_MODULES += android.hardware.wifi.hostapd.xml
+ ifdef CONFIG_DRIVER_CUSTOM
+ LOCAL_STATIC_LIBRARIES := libCustomWifi
+ endif
+diff --git a/wpa_supplicant/Android.mk b/wpa_supplicant/Android.mk
+index d1436e2b..b44a167a 100644
+--- a/wpa_supplicant/Android.mk
++++ b/wpa_supplicant/Android.mk
+@@ -1815,7 +1815,7 @@ LOCAL_SHARED_LIBRARIES += android.hardware.wifi.supplicant-V1-ndk
+ LOCAL_SHARED_LIBRARIES += libutils libbase
+ LOCAL_SHARED_LIBRARIES += libbinder_ndk
+ LOCAL_STATIC_LIBRARIES += libwpa_aidl
+-LOCAL_VINTF_FRAGMENTS := aidl/android.hardware.wifi.supplicant.xml
++LOCAL_REQUIRED_MODULES += android.hardware.wifi.supplicant.xml
+ ifeq ($(WIFI_HIDL_UNIFIED_SUPPLICANT_SERVICE_RC_ENTRY), true)
+ LOCAL_INIT_RC=aidl/android.hardware.wifi.supplicant-service.rc
+ endif
+diff --git a/wpa_supplicant/aidl/Android.bp b/wpa_supplicant/aidl/Android.bp
+index 0785fe12..44b82603 100644
+--- a/wpa_supplicant/aidl/Android.bp
++++ b/wpa_supplicant/aidl/Android.bp
+@@ -54,7 +54,8 @@ cc_library_static {
+     ],
+ }
+ 
+-filegroup {
++vintf_fragment {
+     name: "android.hardware.wifi.supplicant.xml",
+-    srcs: ["android.hardware.wifi.supplicant.xml"],
++    src: "android.hardware.wifi.supplicant.xml",
++    soc_specific: true,
+ }
+-- 
+2.43.0
+
